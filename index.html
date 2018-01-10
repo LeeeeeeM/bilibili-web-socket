@@ -2,9 +2,45 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Document</title>
+	<title>BWS</title>
+	<style>
+		#content {
+			width: 400px;
+			height: 100px;
+			line-height: 100px;
+			background: #90f9d6;
+		}
+		body {
+			margin: 0;
+			margin: 10px;
+		}
+		#btn {
+			width: 200px;
+			line-height: 50px;
+		}
+		#input {
+			width: 200px;
+			line-height: 50px;
+			color: #000;
+		}
+	</style>
 </head>
 <body>
-	<script src="/module.js"></script>
+	<div id="content">
+		请打开控制台，并输入房间号码，点击[进入房间]按钮
+	</div>
+	<input type="text" placeholder="请输入房间号码,仅限数字" id="input">
+	<button id="btn">进入房间</button>
+	<script src="./biWebSock.js"></script>
+	<script type="text/javascript">
+		document.getElementById('btn').addEventListener('click', function() {
+			var number = document.getElementById('input').value;
+			if (number) {
+				if (/^\d+$/.test(number)) {
+					biWebSock(Number(number));
+				}
+			}
+		})
+	</script>
 </body>
 </html>
