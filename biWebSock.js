@@ -25,7 +25,15 @@ window.biWebSock = function(roomid) {
         value: 1
     }]
 
-    var socket = new WebSocket('ws://broadcastlv.chat.bilibili.com:2244/sub')
+    var protocol = location.origin.match(/^(.+):\/\//)[1];
+
+    var wsUrl = 'ws://broadcastlv.chat.bilibili.com:2244/sub';
+
+    if (protocol === 'https') {
+        wsUrl = 'wss://broadcastlv.chat.bilibili.com:2245/sub'
+    }
+
+    var socket = new WebSocket(wsUrl);
     socket.binaryType = 'arraybuffer';
 
     socket.onopen = function (event) {
