@@ -1,4 +1,4 @@
-window.biWebSock = function(roomid) {
+window.biWebSock = (function() {
     var dataStruct = [{
         name: "Header Length",
         key: "headerLen",
@@ -27,64 +27,11 @@ window.biWebSock = function(roomid) {
 
     var protocol = location.origin.match(/^(.+):\/\//)[1];
 
-    var wsUrl = 'ws://broadcastlv.chat.bilibili.com:2244/sub';
+    var wsUrl = 'ws://broadcastlv.chat.bilibili.com:2244/sub'
 
     if (protocol === 'https') {
         wsUrl = 'wss://broadcastlv.chat.bilibili.com:2245/sub'
     }
-
-    var socket = new WebSocket(wsUrl);
-    socket.binaryType = 'arraybuffer';
-
-    socket.onopen = function (event) {
-        var join = joinRoom(roomid);
-        socket.send(join.buffer);
-        sendBeat();
-    }
-
-    socket.onmessage = function (event) {
-        var dataView = new DataView(event.data);
-        var data = {};
-        data.packetLen = dataView.getUint32(0);
-        dataStruct.forEach(function (item) {
-            if (item.bytes === 4) {
-                data[item.key] = dataView.getUint32(item.offset)
-            } else if (item.bytes === 2) {
-                data[item.key] = dataView.getUint16(item.offset)
-            }
-        });
-        if (data.op && data.op === 5) {
-            data.body = [];
-            var packetLen = data.packetLen
-            for (var offset = 0; offset < dataView.byteLength; offset += packetLen) {
-                packetLen = dataView.getUint32(offset)
-                headerLen = dataView.getUint16(offset + 4)
-
-                var recData = [];
-                for (var i = headerLen; i < packetLen; i++) {
-                    recData.push(dataView.getUint8(i))
-                }
-                try {
-                    // console.log(bytes2str(recData))
-                    let body = JSON.parse(bytes2str(recData))
-                    if (body.cmd === 'DANMU_MSG') {
-                        console.log(body.info[2][1], ':', body.info[1])
-                    }
-                    data.body.push(body)
-                } catch (e) {
-                    // console.log('tcp 校验失败，重新发送');
-                }
-            }
-        }
-
-    }
-
-    function sendBeat() {
-        var timer = setInterval(function () {
-            socket.send(generatePacket())
-        }, 3000);
-    }
-
 
     function str2bytes(str) {
         var bytes = new Array();
@@ -110,7 +57,6 @@ window.biWebSock = function(roomid) {
         }
         return bytes;
     }
-
 
     function bytes2str(array) {
         var __array = array.slice(0);
@@ -152,17 +98,6 @@ window.biWebSock = function(roomid) {
         return str;
     }
 
-
-    var joinRoom = function (rid, uid) {
-        rid = rid || 282712;
-        uid = uid || 19176530;
-        var packet = JSON.stringify({
-            uid: uid,
-            roomid: rid
-        });
-        return generatePacket(7, packet);
-    }
-
     function getPacket(payload) {
         return str2bytes(payload);
     }
@@ -183,4 +118,105 @@ window.biWebSock = function(roomid) {
         }
         return dataBuf;
     }
-}
+
+    function Room() {
+        this.timer = null
+        this.socket = null
+        this.roomid = null
+    }
+
+    Room.prototype = {
+        sendBeat: function() {
+            var self = this;
+            self.timer = setInterval(function () {
+                self.socket.send(generatePacket())
+            }, 3000)
+        },
+        destroy: function() {
+            clearTimeout(this.timer)
+            this.socket.close()
+            this.socket = null
+            this.timer = null
+            this.roomid = null
+        },
+        joinRoom: function(rid, uid) {
+            rid = rid || 282712;
+            uid = uid || 19176530;
+            var packet = JSON.stringify({
+                uid: uid,
+                roomid: rid
+            });
+            return generatePacket(7, packet);
+        },
+        init: function(roomid) {
+            var self = this;
+            self.roomid = roomid;
+            var socket = new WebSocket(wsUrl)
+            socket.binaryType = 'arraybuffer';
+            socket.onopen = function (event) {
+                var join = self.joinRoom(roomid);
+                socket.send(join.buffer);
+                self.sendBeat(socket);
+            }
+
+            socket.onmessage = function (event) {
+                var dataView = new DataView(event.data);
+                var data = {};
+                data.packetLen = dataView.getUint32(0);
+                dataStruct.forEach(function (item) {
+                    if (item.bytes === 4) {
+                        data[item.key] = dataView.getUint32(item.offset)
+                    } else if (item.bytes === 2) {
+                        data[item.key] = dataView.getUint16(item.offset)
+                    }
+                });
+                if (data.op && data.op === 5) {
+                    data.body = [];
+                    var packetLen = data.packetLen
+                    for (var offset = 0; offset < dataView.byteLength; offset += packetLen) {
+                        packetLen = dataView.getUint32(offset)
+                        headerLen = dataView.getUint16(offset + 4)
+
+                        var recData = [];
+                        for (var i = headerLen; i < packetLen; i++) {
+                            recData.push(dataView.getUint8(i))
+                        }
+                        try {
+                            // console.log(bytes2str(recData))
+                            let body = JSON.parse(bytes2str(recData))
+                            if (body.cmd === 'DANMU_MSG') {
+                                console.log(body.info[2][1], ':', body.info[1])
+                            }
+                            data.body.push(body)
+                        } catch (e) {
+                            // console.log('tcp 校验失败，重新发送');
+                        }
+                    }
+                }
+            }
+
+            socket.onclose = function() {
+                if (this.roomid) {
+                    console.log('关闭直播间:' + this.roomid)
+                }
+            }
+            self.socket = socket
+        }
+    }
+
+    return {
+        room: null,
+        start: function(roomid) {
+            console.log('正在进入房间：' + roomid)
+            this.room = new Room()
+            this.room.init(roomid)
+        },
+        disconnect: function() {
+            if (this.room) {
+                console.log('正在退出房间：' + this.room.roomid)
+                this.room.destroy()
+                this.room = null
+            }  
+        }
+    }
+})()
