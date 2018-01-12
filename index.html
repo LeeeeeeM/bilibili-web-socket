@@ -37,7 +37,8 @@
 			var number = document.getElementById('input').value;
 			if (number) {
 				if (/^\d+$/.test(number)) {
-					biWebSock(Number(number));
+					biWebSock.disconnect();
+					biWebSock.start(Number(number));
 				}
 			}
 		})
