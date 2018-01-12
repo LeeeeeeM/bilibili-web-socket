@@ -23,6 +23,11 @@
 			line-height: 50px;
 			color: #000;
 		}
+		.danmu {
+			border: 1px solid #0df;
+			background: #ddd;
+			width: 200px;
+		}
 	</style>
 </head>
 <body>
@@ -38,10 +43,18 @@
 			if (number) {
 				if (/^\d+$/.test(number)) {
 					biWebSock.disconnect();
-					biWebSock.start(Number(number));
+					var room = biWebSock.start(Number(number));
+					room.then(addDanMu)
 				}
 			}
 		})
+		var dom = window.document;
+		function addDanMu(res) {
+			var div = dom.createElement('div');
+			div.setAttribute('class', 'danmu');
+			div.innerText = res.name + '   :   ' + res.text;
+			document.body.appendChild(div);
+		}
 	</script>
 </body>
 </html>
