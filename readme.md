@@ -8,10 +8,14 @@
 
 [demo地址](https://evilemon.github.io/bilibili-web-socket/)
 
-# 特别提醒，尽量进一个比较火的直播房间 (⊙﹏⊙)b 有个很冷清半天看不到一个弹幕
+## 特别提醒，尽量进一个比较火的直播房间 (⊙﹏⊙)b 有的很冷清半天看不到一个弹幕
 
 [B站直播网址](https://live.bilibili.com/)
 
-##  这个房间稳定有弹幕 504273
+##  这个房间稳定有弹幕 5279
+
+## 最新更新 => 通过进行nginx代理，通过我的域名转发到bilibili弹幕ws服务上
+
+[wss://api.energys.cn/sub](wss://api.energys.cn/sub)
 
 
