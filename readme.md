@@ -6,7 +6,7 @@
 
 ## 请打开控制台，接受弹幕  目前用原生的ws实现，建议使用chrome浏览器
 
-[demo地址](https://evilemon.github.io/bilibili-web-socket/)
+[demo地址](https://leeeeeem.github.io/bilibili-web-socket/)
 
 ## 特别提醒，尽量进一个比较火的直播房间 (⊙﹏⊙)b 有的很冷清半天看不到一个弹幕
 
