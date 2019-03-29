@@ -1,0 +1,8 @@
+src/*
+example/*
+
+config/*
+
+babel.config.js
+
+**/*.js.map
