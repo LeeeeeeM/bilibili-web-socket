@@ -44,6 +44,7 @@ export default class Socket {
             recData.push(dataView.getUint8(i))
           }
           try {
+            console.log(bytes2str(recData))
             const body = JSON.parse(bytes2str(recData))
             if (body.cmd === 'DANMU_MSG') {
               console.log(body.info[2][1], ':', body.info[1])
@@ -54,6 +55,7 @@ export default class Socket {
             }
             data.body.push(body)
           } catch (e) {
+            console.log(e)
             // console.log('tcp 校验失败，重新发送')
           }
         }
