@@ -8,6 +8,8 @@
 
 [B站直播网址](https://live.bilibili.com/)
 
+![示例](./preview.png)
+
 >  这个房间稳定有弹幕 7623885
 
 > 最新更新 => 通过进行nginx代理，通过我的域名转发到bilibili弹幕ws服务上，目前服务到期不再转发，开发者自行配置
@@ -16,4 +18,4 @@
 
 > BILIWS 对外暴露$destroy、$start、$subscribe三个API。
 
-> 使用方式见example示例，enjoy it
+> 使用方式见example示例
