@@ -1,11 +1,12 @@
 {
   "name": "bilibili-websocket",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "bilibili && websocket",
   "scripts": {
     "build": "npm run build:dev && npm run release",
     "clear": "rm -rf dist/*",
     "release": "npm run build:ol",
+    "dev": "webpack-dev-server --config config/webpack.config.js",
     "watch": "npm run build:dev -- -w",
     "build:dev": "cross-env NODE_PHASE=dev rollup -c config/rollup.config.js",
     "build:ol": "cross-env NODE_PHASE=ol rollup -c config/rollup.config.js",
@@ -15,8 +16,12 @@
   "main": "dist/release/index.js",
   "devDependencies": {
     "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.4.0",
+    "@babel/preset-env": "^7.4.2",
+    "babel-loader": "^8.0.5",
     "cross-env": "^3.2.4",
     "eslint": "^3.12.1",
+    "html-webpack-plugin": "^3.2.0",
     "json-loader": "0.5.4",
     "rollup": "^0.68.0",
     "rollup-plugin-alias": "^1.4.0",
@@ -26,7 +31,9 @@
     "rollup-plugin-eslint": "^3.0.0",
     "rollup-plugin-json": "^2.0.2",
     "rollup-plugin-node-resolve": "^2.0.0",
-    "rollup-plugin-uglify": "^3.0.0"
-  },
-  "dependencies": {}
+    "rollup-plugin-uglify": "^3.0.0",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-server": "^3.2.1"
+  }
 }
