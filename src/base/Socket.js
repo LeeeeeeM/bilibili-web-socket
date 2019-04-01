@@ -22,28 +22,30 @@ export default class Socket {
 
     this._docker.onmessage = event => {
       const dataView = new DataView(event.data)
-      const data = {}
-      data.packetLen = dataView.getUint32(0)
-      msgStruct.forEach(item => {
-        if (item.bytes === 4) {
-          data[item.key] = dataView.getUint32(item.offset)
-        } else if (item.bytes === 2) {
-          data[item.key] = dataView.getUint16(item.offset)
-        }
-      })
-      if (data.op && data.op === 5) {
-        data.body = []
-        let packetLen = data.packetLen
-        let headerLen
-        for (let offset = 0; offset < dataView.byteLength; offset += packetLen) {
-          packetLen = dataView.getUint32(offset)
-          headerLen = dataView.getUint16(offset + 4)
+      let packetLen, headerLen
+      const result = []
+      for (let offset = 0; offset < dataView.byteLength;) {
+        const data = {}
+        packetLen = dataView.getUint32(offset)
+        headerLen = dataView.getUint16(offset + 4)
+
+        msgStruct.forEach(item => {
+          if (item.bytes === 4) {
+            data[item.key] = dataView.getUint32(offset + item.offset)
+          } else if (item.bytes === 2) {
+            data[item.key] = dataView.getUint16(offset + item.offset)
+          }
+        })
+
+        if (data.op && data.op === 5) {
+          data.body = []
 
           const recData = []
-          for (let i = headerLen; i < packetLen; i++) {
+          for (let i = offset + headerLen; i < offset + packetLen; i++) {
             recData.push(dataView.getUint8(i))
           }
           try {
+            data.body = []
             const body = JSON.parse(bytes2str(recData))
             if (body.cmd === 'DANMU_MSG') {
               console.log(body.info[2][1], ':', body.info[1])
@@ -54,10 +56,13 @@ export default class Socket {
             }
             data.body.push(body)
           } catch (e) {
-            // console.log('tcp 校验失败，重新发送')
+            console.log(e)
           }
         }
+        result.push(data)
+        offset += packetLen
       }
+      // console.warn(`该条message携带${result.length}条弹幕`, result)
     }
 
     this._docker.onclose = event => {
@@ -106,6 +111,6 @@ export default class Socket {
   _sendBeat () {
     this._timer = setInterval(() => {
       this._docker.send(generatePacket())
-    }, 3000)
+    }, 30 * 1000)
   }
 }

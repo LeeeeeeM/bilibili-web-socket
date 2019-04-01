@@ -1,4 +1,4 @@
-    (function(s) {console.log(s)})('### App Framework ### Start: 0.0.1 Build 20190329');
+    (function(s) {console.log(s)})('### App Framework ### Start: 0.0.2 Build 20190401');
     
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -168,28 +168,29 @@
 
     this._docker.onmessage = function (event) {
       var dataView = new DataView(event.data);
-      var data = {};
-      data.packetLen = dataView.getUint32(0);
-      messageStruct.forEach(function (item) {
-        if (item.bytes === 4) {
-          data[item.key] = dataView.getUint32(item.offset);
-        } else if (item.bytes === 2) {
-          data[item.key] = dataView.getUint16(item.offset);
-        }
-      });
-      if (data.op && data.op === 5) {
-        data.body = [];
-        var packetLen = data.packetLen;
-        var headerLen;
-        for (var offset = 0; offset < dataView.byteLength; offset += packetLen) {
-          packetLen = dataView.getUint32(offset);
-          headerLen = dataView.getUint16(offset + 4);
+      var packetLen, headerLen;
+      var loop = function ( offset$1 ) {
+        var data = {};
+        packetLen = dataView.getUint32(offset$1);
+        headerLen = dataView.getUint16(offset$1 + 4);
+
+        messageStruct.forEach(function (item) {
+          if (item.bytes === 4) {
+            data[item.key] = dataView.getUint32(offset$1 + item.offset);
+          } else if (item.bytes === 2) {
+            data[item.key] = dataView.getUint16(offset$1 + item.offset);
+          }
+        });
+
+        if (data.op && data.op === 5) {
+          data.body = [];
 
           var recData = [];
-          for (var i = headerLen; i < packetLen; i++) {
+          for (var i = offset$1 + headerLen; i < offset$1 + packetLen; i++) {
             recData.push(dataView.getUint8(i));
           }
           try {
+            data.body = [];
             var body = JSON.parse(bytes2str(recData));
             if (body.cmd === 'DANMU_MSG') {
               console.log(body.info[2][1], ':', body.info[1]);
@@ -200,10 +201,16 @@
             }
             data.body.push(body);
           } catch (e) {
-            // console.log('tcp 校验失败，重新发送')
+            console.log(e);
           }
         }
-      }
+        offset$1 += packetLen;
+
+          offset = offset$1;
+      };
+
+        for (var offset = 0; offset < dataView.byteLength;) loop( offset );
+      // console.warn(`该条message携带${result.length}条弹幕`, result)
     };
 
     this._docker.onclose = function (event) {
@@ -260,7 +267,7 @@
 
     this._timer = setInterval(function () {
       this$1._docker.send(generatePacket());
-    }, 3000);
+    }, 30 * 1000);
   };
 
   /**

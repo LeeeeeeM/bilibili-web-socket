@@ -6,5 +6,9 @@ Thumbs.db
 *.iml
 .idea/
 node_modules/
+<<<<<<< HEAD
+=======
+dist/
+>>>>>>> master
 
 package-lock.json
