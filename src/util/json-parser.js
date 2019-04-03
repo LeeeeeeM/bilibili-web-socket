@@ -17,6 +17,10 @@ function parser (str) {
     }
     if (str[i] === '}') {
       const prev = store.pop()
+      if (!prev) {
+        console.warn(`${str}不是正确的对象字符串`)
+        continue
+      }
       if (store.length === 0) {
         result.push(
           str.slice(prev.index, i + 1)
