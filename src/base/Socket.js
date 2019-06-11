@@ -81,7 +81,7 @@ export default class Socket {
   close() {
     // 清除定时脚本
     if (this._timer) {
-      clearTimeout(this._timer)
+      clearInterval(this._timer)
       this._timer = null
     }
     this._docker.close()
