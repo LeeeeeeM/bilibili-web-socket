@@ -1,0 +1,57 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+#content {
+  width: 100%;
+  height: 50px;
+  line-height: 50px;
+  background: #b3a5d6;
+  text-align: center;
+  color: #fff;
+}
+
+body {
+  margin: 0;
+  margin: 10px;
+  background: #ddd;
+}
+
+#btn {
+  width: 100%;
+  line-height: 50px;
+  display: block;
+  margin-bottom: 40px;
+  background: #2e2e80;
+  color: #fff;
+  font-size: 24px;
+}
+
+#input {
+  width: 100%;
+  line-height: 50px;
+  color: #000;
+  outline: none;
+  box-sizing: border-box;
+  padding-left: 20px;
+  text-align: center;
+}
+
+.danmu {
+  border: 1px solid #0df;
+  background: #b3a5d6;
+  width: 100%;
+  line-height: 40px;
+  min-height: 40px;
+  padding-left: 10px;
+  box-sizing: border-box;
+  color: #4a2357;
+}
+
+#message {
+  height: 500px;
+  overflow-y: auto;
+}
